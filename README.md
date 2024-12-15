@@ -1,10 +1,25 @@
-# MessageScanAI for BetterDiscord
+# MessageSummaryAI for BetterDiscord
 
-A simple BetterDiscord plugin that adds a button to summarize messages with AI.
+**MessageSummaryAI** is a BetterDiscord plugin that adds an AI-powered button to summarize messages in Discord chats, making it easier to get quick insights and summaries of conversations.
 
-### How to install
+![Untitled-1](https://github.com/user-attachments/assets/a5565d76-a572-4e08-8e3b-2df47b3362e5)
 
-1. Make sure you have [BetterDiscord](https://betterdiscord.app/) installed
-2. Download the file `MessageSummaryAI.plugin.js`
-3. Copy it to `%AppData%\betterdiscord\plugins`
-4. Refresh or restart Discord
+## Repo
+
+This repository is a fork of [BetterDiscord-MessageScanAI](https://github.com/programmer2514/BetterDiscord-MessageScanAI) by programmer2514. A big thanks to them for their foundational work, which made this plugin possible!
+
+## Features
+
+- **AI-powered message summaries**: Quickly get a concise summary of conversations.
+- **User identification and topic extraction**: The summary includes who is talking and what they are discussing.
+
+## Installation Instructions
+
+1. **Install BetterDiscord**: If you haven't already, [install BetterDiscord](https://betterdiscord.app/).
+2. **Download the Plugin**: Download the `MessageSummaryAI.plugin.js` file from the repository.
+3. **Copy the Plugin to the Plugins Folder**: Move the downloaded plugin file to `%AppData%\BetterDiscord\plugins`.
+4. **Restart Discord**: Refresh or restart Discord to load the plugin.
+
+## Usage
+
+Once installed, the plugin will add a button to your Discord chat. Click the button to generate a summary of the messages in the chat.
