@@ -2,7 +2,7 @@
 
 **MessageSummaryAI** is a BetterDiscord plugin that adds an AI-powered button to summarize messages in Discord chats, making it easier to get quick insights and summaries of conversations.
 
-![Untitled-1](https://github.com/user-attachments/assets/3d1909e8-91c5-4099-8fc9-fa4e5ee6aea7)
+![Untitled-1](https://github.com/user-attachments/assets/a5565d76-a572-4e08-8e3b-2df47b3362e5)
 
 ## Repo
 
