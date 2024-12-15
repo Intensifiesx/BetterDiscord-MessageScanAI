@@ -1,9 +1,12 @@
 /**
  * @name MessageSummaryAI
- * @author Intensifiesx forked from programmer2514
+ * @author Intensifiesx
  * @authorId 188896646870859776
  * @description Adds a button to summarize text with AI
  * @version 1.0.0
+ * @donate https://www.paypal.com/paypalme/Intensifiesx
+ * @website https://github.com/Intensifiesx/BetterDiscord-MessageSummaryAI
+ * @source https://raw.githubusercontent.com/Intensifiesx/BetterDiscord-MessageSummaryAI/refs/heads/main/MessageSummaryAI.plugin.js
  */
 
 module.exports = (() => {
@@ -147,6 +150,8 @@ module.exports = (() => {
             // Initialize state variables
             this.tosAccepted = BdApi.getData(this.meta.name, "tosAccepted") === "true";
             this.apiKey = BdApi.getData(this.meta.name, "apiKey");
+            this.summarySize = BdApi.getData(this.meta.name, "summarySize") || 60;
+            this.model = BdApi.getData(this.meta.name, "model") || "gemini-1.0-pro";
 
             // Show setup modals
             if (!this.tosAccepted) this.showTosModal();
@@ -204,6 +209,8 @@ module.exports = (() => {
             delete this.appWrapper;
             delete this.iconClear;
             delete this.iconSummarize;
+            delete this.summarySize;
+            delete this.model;
             delete this.injectPoint;
             delete this.messageContent;
             delete this.messageListItem;
@@ -231,7 +238,50 @@ module.exports = (() => {
                 { placeholder: "API key (Ex: XXxxXxXX0xX0XXXxXX0XXxXxxxXXx0xxXxx0XXx)" }
             );
 
-            settingsRoot.append(settingApiKey);
+            var settingSummarySize = new Library.Settings.Textbox(
+                "Summary Size (1-100) (Default: 60)",
+                "The maximum number of messages to summarize (This will untoggle the 'Only Summarize Single Messages' setting)",
+                BdApi.getData(this.meta.name, "summarySize"),
+                (text) => {
+                    let value = parseInt(text);
+                    if (isNaN(value) || value < 1 || value > 100) {
+                        BdApi.showToast("Summary Size must be a number between 1 and 100", { type: "error" });
+                        return;
+                    }
+                    BdApi.setData(this.meta.name, "summarySize", value);
+                    _this.summarySize = value;
+                },
+                { placeholder: "Default: 60" }
+            );
+
+            var settingModel = new Library.Settings.Dropdown(
+                "Model (Default: gemini-1.0-pro)",
+                "The model to use for summarization",
+                BdApi.getData(this.meta.name, "model") || "gemini-1.0-pro",
+                [
+                    { label: "Gemini 2.0 Flash", value: "gemini-2.0-flash-exp" },
+                    { label: "Gemini 1.5 Flash", value: "gemini-1.5-flash" },
+                    { label: "Gemini 1.5 Flash-8B", value: "gemini-1.5-flash-8b" },
+                    { label: "Gemini 1.5 Pro", value: "gemini-1.5-pro" },
+                    { label: "Gemini 1.0 Pro (Will Be Deprecated on 2/15/2025)", value: "gemini-1.0-pro" },
+                ],
+                (value) => {
+                    BdApi.setData(this.meta.name, "model", value);
+                    _this.model = value;
+                },
+                { placeholder: "Select a model" }
+            );
+
+            var settingToggle = new Library.Settings.Switch(
+                "Only Summarize A Single Message (Default: Off)",
+                "(This will change summary size)",
+                BdApi.getData(this.meta.name, "summarySize") === 1,
+                (checked) => {
+                    BdApi.setData(this.meta.name, "summarySize", 1);
+                }
+            );
+
+            settingsRoot.append(settingApiKey, settingSummarySize, settingModel, settingToggle);
             return settingsRoot.getElement();
         };
 
@@ -268,7 +318,7 @@ module.exports = (() => {
                         // Collect the target message and 40 previous messages
                         const messages = [];
                         let currentMessage = targetMessage;
-                        for (let i = 0; i < 60; i++) {
+                        for (let i = 0; i < this.summarySize; i++) {
                             if (!currentMessage) break; // Stop if no more previous messages
                             messages.unshift(currentMessage); // Add the message to the beginning of the array
                             currentMessage = currentMessage.previousElementSibling;
@@ -286,6 +336,8 @@ module.exports = (() => {
 
                         // Run the combined messages through your summarization AI or logic
                         const summary = await this.askAI(combinedMessages);
+
+                        BdApi.showToast("Summarizing messages...", { type: "info" });
 
                         // Log the summary and display it in the target message
                         const messageBody = targetMessage.querySelector("." + this.messageContent);
@@ -369,7 +421,7 @@ module.exports = (() => {
             }
 
             const response = await BdApi.Net.fetch(
-                `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${this.apiKey}`,
+                `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${this.apiKey}`,
                 {
                     method: "POST",
                     headers: {
